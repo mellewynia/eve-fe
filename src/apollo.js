@@ -5,7 +5,9 @@ import { split } from "apollo-link";
 import { HttpLink } from "apollo-link-http";
 import { getMainDefinition } from "apollo-utilities";
 
-console.log(localStorage.getItem('X-HASURA-ADMIN-SECRET'));
+if (! localStorage.getItem('X-HASURA-ADMIN-SECRET')) {
+  console.warn('Care: no X-HASURA-ADMIN-SECRET set (in localStorage)');
+};
 
 const headers = {
   'content-type': 'application/json',
@@ -25,7 +27,6 @@ const wsLink = new WebSocketLink({
     connectionParams: {
       headers: getHeaders()
     }
-
   }
 });
 

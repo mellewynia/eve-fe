@@ -4,9 +4,10 @@
   import { subscribe } from 'svelte-apollo';
   const AUTHOR_LIST = gql`
     subscription {
-      profile {
-		id
-		name
+      project {
+        id
+        name
+        rate
       }
     }
   `;
@@ -14,18 +15,23 @@
 </script>
 
 <script>
-	const name = 'Eve + svelte';
+  import ProjectForm from './ProjectForm.svelte';
+
+  const name = 'Eve + svelte';
+  let showProjectForm = false;
 </script>
 
 <h1>Hello {name}!</h1>
 
+<button on:click="{() => {showProjectForm = !showProjectForm}}">showProjectForm</button>
+{#if showProjectForm}<hr/><ProjectForm/><hr/>{/if}
 
 <ul>
   {#await $authorsList}
     <li>Loading...</li>
   {:then result}
-    {#each result.data.profile as profile}
-      <li>{profile.name}</li>
+    {#each result.data.project as project (project.id)}
+      <li>{project.name} {project.rate}</li>
     {:else}
       <li>No authors found</li>
     {/each}
