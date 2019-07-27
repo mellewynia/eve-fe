@@ -2,6 +2,7 @@
   import gql from 'graphql-tag';
   import { client } from './apollo';
   import { subscribe } from 'svelte-apollo';
+
   const AUTHOR_LIST = gql`
     subscription {
       project {
@@ -11,20 +12,27 @@
       }
     }
   `;
+
   const authorsList = subscribe(client, { query: AUTHOR_LIST });
 </script>
 
 <script>
   import ProjectForm from './ProjectForm.svelte';
+  import RegForm from './RegForm.svelte';
 
   const name = 'Eve + svelte';
+
   let showProjectForm = false;
+  let showRegForm = true;
 </script>
 
 <h1>Hello {name}!</h1>
 
 <button on:click="{() => {showProjectForm = !showProjectForm}}">showProjectForm</button>
 {#if showProjectForm}<hr/><ProjectForm/><hr/>{/if}
+
+<button on:click="{() => {showRegForm = !showRegForm}}">showRegForm</button>
+{#if showRegForm}<hr/><RegForm/><hr/>{/if}
 
 <ul>
   {#await $authorsList}

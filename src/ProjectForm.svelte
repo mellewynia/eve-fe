@@ -3,7 +3,7 @@
 
   const insert_project = gql`
     mutation ($rate: Int!, $abbr: String!, $name: String!) {
-      insert_project (objects: {id: $rate, abbr: $abbr, name: $name}) {
+      insert_project (objects: {rate: $rate, abbr: $abbr, name: $name}) {
         returning {
           id
           abbr
@@ -24,22 +24,28 @@
     mutate(client, {
       mutation: insert_project,
       variables: { name, abbr, rate }
-    })
+    });
   }
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
-  <label>
-    Name
+  <p>
+    <label>
+      Name
+    </label>
     <input type="text" bind:value={name}>
-  </label>
-  <label>
-    Abbr
-    <input type="text" bind:value={abbr}>
-  </label>
-  <label>
-    Rate
-    <input type="number" bind:value={rate} min="0">
-  </label>
+  </p>
+  <p>
+    <label>
+      Abbr
+      <input type="text" bind:value={abbr}>
+    </label>
+  </p>
+  <p>
+    <label>
+      Rate
+      <input type="number" bind:value={rate} min="0">
+    </label>
+  </p>
   <button>Save</button>
 </form>
