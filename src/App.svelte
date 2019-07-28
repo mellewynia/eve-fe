@@ -13,12 +13,45 @@
     }
   `;
 
+  const REG_LIST = gql`
+    subscription {
+      reg(order_by: {startDate: desc}) {
+        id
+        rate
+        info
+        startDate
+        endDate
+        project {
+          id
+          createdDate
+          name
+          rate
+        }
+      }
+    }
+  `;
+
   const authorsList = subscribe(client, { query: AUTHOR_LIST });
+  const regsList = subscribe(client, { query: REG_LIST });
+  regsList.subscribe(
+    (ok) => {
+      console.log(ok);
+
+      ok.then(
+        res => {
+          console.log(res);
+        }
+      ).catch(
+        e => console.log(e)
+      );
+    }
+  );
 </script>
 
 <script>
   import ProjectForm from './ProjectForm.svelte';
   import RegForm from './RegForm.svelte';
+  import RegItem from './RegItem.svelte';
 
   const name = 'Eve + svelte';
 
@@ -34,16 +67,49 @@
 <button on:click="{() => {showRegForm = !showRegForm}}">showRegForm</button>
 {#if showRegForm}<hr/><RegForm/><hr/>{/if}
 
-<ul>
-  {#await $authorsList}
-    <li>Loading...</li>
-  {:then result}
-    {#each result.data.project as project (project.id)}
-      <li>{project.name} {project.rate}</li>
-    {:else}
-      <li>No authors found</li>
-    {/each}
-  {:catch error}
-    <li>Error loading authors: {error.message}</li>
-  {/await}
-</ul>
+<style>
+.layout {
+  display: flex;
+}
+
+.layout__filters {
+  width: 262px;
+  background: #eee;
+}
+
+.layout__content {
+  flex: 1 1;
+}
+</style>
+
+<section class="layout">
+  <div class="layout__filters">
+    <ul>
+      {#await $authorsList}
+        <li>Loading...</li>
+      {:then result}
+        {#each result.data.project as project (project.id)}
+          <li>{project.name} {project.rate}</li>
+        {:else}
+          <li>No authors found</li>
+        {/each}
+      {:catch error}
+        <li>Error loading authors: {error.message}</li>
+      {/await}
+    </ul>
+  </div>
+  <div class="layout__content">
+    {#await $regsList}
+    <p>Loading...</p>
+    {:then result}
+      {#each result.data.reg as reg (reg.id)}
+        <RegItem reg={reg} />
+      {:else}
+        No regs.
+      {/each}
+    {:catch error}
+    <p>Something went wrong...</p>
+    {/await}
+  </div>
+</section>
+

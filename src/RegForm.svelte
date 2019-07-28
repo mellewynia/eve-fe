@@ -1,5 +1,23 @@
-<script>
+<script context="module">
   import gql from 'graphql-tag';
+  import { client } from './apollo';
+  import { subscribe, mutate } from 'svelte-apollo';
+  import { format } from 'date-fns';
+
+  const AUTHOR_LIST = gql`
+    subscription {
+      project {
+        id
+        name
+        rate
+      }
+    }
+  `;
+
+  const projectsList = subscribe(client, { query: AUTHOR_LIST });
+</script>
+
+<script>
 
   const insert_reg = gql`
     mutation (
@@ -23,16 +41,19 @@
   let info = '';
   let projectId = null;
   let rate = null;
-  let startDate = '2019-07-27T18:30:04+00:00';
+  let startDate = format(new Date(), 'YYYY-MM-DD[T]HH:mm:ssZZ') // '2019-07-27T18:30:04+00:00';
   let endDate = null;
-
-  import { client } from './apollo';
-  import { mutate } from 'svelte-apollo';
 
   function handleSubmit () {
     mutate(client, {
       mutation: insert_reg,
-      variables: { info, projectId, rate, startDate, endDate }
+      variables: {
+        info,
+        projectId,
+        rate,
+        startDate,
+        endDate: endDate === '' ? null : endDate
+      }
     }).catch(e => {
       console.log(e);
     })
@@ -49,8 +70,19 @@
   <div>
     <p>
       <label>Project</label>
-      <select>
-        
+      <select bind:value={projectId}>
+        {#await $projectsList}
+          <option disabled>Loading...</option>
+        {:then result}
+          {#each result.data.project as project (project.id)}
+            <option value={project.id}>{project.name}</option>
+          {:else}
+            <option disabled>No projects</option>
+          {/each}
+          <option value={null}>Geen</option>
+        {:catch error}
+          <option disabled>Error</option>
+        {/await}
       </select>
     </p>
     <p>
