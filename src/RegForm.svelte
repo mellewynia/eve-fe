@@ -18,6 +18,7 @@
 </script>
 
 <script>
+  export let reg = null;
 
   const insert_reg = gql`
     mutation (
@@ -38,22 +39,51 @@
     }
   `;
 
-  let info = '';
-  let projectId = null;
-  let rate = null;
-  let startDate = format(new Date(), 'YYYY-MM-DD[T]HH:mm:ssZZ') // '2019-07-27T18:30:04+00:00';
-  let endDate = null;
+  const update_reg = gql`
+    mutation (
+      $id: Int!,
+      $info: String!,
+      $projectId: Int, $rate: Int,
+      $startDate: timestamptz!, $endDate: timestamptz
+    ) {
+      update_reg (
+        where: {
+          id: {_eq: $id}
+        },
+        _set: {
+          info: $info,
+          projectId: $projectId, rate: $rate,
+          startDate: $startDate, endDate: $endDate
+        }
+      ) {
+        returning {
+          id
+          info
+        }
+      }
+    }
+  `;
+
+  let id = reg ? reg.id : null;
+  let info = reg ? reg.info : '';
+  let projectId = reg ? reg.projectId : null;
+  let rate = reg ? reg.rate : null;
+  let startDate = reg ? reg.startDate : format(new Date(), 'YYYY-MM-DD[T]HH:mm:ssZZ') // '2019-07-27T18:30:04+00:00';
+  let endDate = reg ? reg.endDate : null;
 
   function handleSubmit () {
+    const variables = {
+      info,
+      projectId,
+      rate,
+      startDate,
+      endDate: endDate === '' ? null : endDate
+    };
+
+    if (id) { variables.id = id; }
+
     mutate(client, {
-      mutation: insert_reg,
-      variables: {
-        info,
-        projectId,
-        rate,
-        startDate,
-        endDate: endDate === '' ? null : endDate
-      }
+      mutation: id ? update_reg : insert_reg, variables
     }).catch(e => {
       console.log(e);
     })
@@ -74,12 +104,12 @@
         {#await $projectsList}
           <option disabled>Loading...</option>
         {:then result}
+          <option value={null} selected={projectId === null}>Geen</option>
           {#each result.data.project as project (project.id)}
-            <option value={project.id}>{project.name}</option>
+            <option value={project.id} selected={projectId === project.id}>{project.name}</option>
           {:else}
             <option disabled>No projects</option>
           {/each}
-          <option value={null}>Geen</option>
         {:catch error}
           <option disabled>Error</option>
         {/await}
@@ -105,6 +135,7 @@
       <input
         type="text" bind:value={endDate}
       >
+      <button type="button" on:click={() => { endDate = format(new Date(), 'YYYY-MM-DD[T]HH:mm:ssZZ'); }}>now</button>
     </p>
   </div>
   <p>

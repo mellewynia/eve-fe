@@ -21,6 +21,7 @@
         info
         startDate
         endDate
+        projectId
         project {
           id
           createdDate
@@ -33,6 +34,7 @@
 
   const authorsList = subscribe(client, { query: AUTHOR_LIST });
   const regsList = subscribe(client, { query: REG_LIST });
+  /*
   regsList.subscribe(
     (ok) => {
       console.log(ok);
@@ -46,6 +48,7 @@
       );
     }
   );
+  */
 </script>
 
 <script>
@@ -56,7 +59,12 @@
   const name = 'Eve + svelte';
 
   let showProjectForm = false;
-  let showRegForm = true;
+  let showRegForm = false;
+
+  let reg = null;
+  function showReg(selectedReg = null) {
+    if (! showRegForm) { reg = selectedReg; showRegForm = true; }
+  }
 </script>
 
 <h1>Hello {name}!</h1>
@@ -64,8 +72,7 @@
 <button on:click="{() => {showProjectForm = !showProjectForm}}">showProjectForm</button>
 {#if showProjectForm}<hr/><ProjectForm/><hr/>{/if}
 
-<button on:click="{() => {showRegForm = !showRegForm}}">showRegForm</button>
-{#if showRegForm}<hr/><RegForm/><hr/>{/if}
+{#if showRegForm}<hr/><RegForm reg={reg ? {...reg} : null}/><hr/>{/if}
 
 <style>
 .layout {
@@ -99,11 +106,14 @@
     </ul>
   </div>
   <div class="layout__content">
+    <button on:click="{() => {showRegForm = !showRegForm; reg = null;}}">showRegForm</button>
     {#await $regsList}
     <p>Loading...</p>
     {:then result}
       {#each result.data.reg as reg (reg.id)}
-        <RegItem reg={reg} />
+        <div on:click={() => {showReg(reg)}}>
+          <RegItem reg={reg} />
+        </div>
       {:else}
         No regs.
       {/each}
