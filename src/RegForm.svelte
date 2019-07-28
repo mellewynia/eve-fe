@@ -88,6 +88,37 @@
       console.log(e);
     })
   }
+
+  // Check delete
+
+  let deleteTimeout = null;
+
+  const delete_reg = gql`
+    mutation (
+      $id: Int!
+    ) {
+      delete_reg (
+        where: {
+          id: {_eq: $id}
+        }
+      ) {
+        returning {
+          id
+        }
+      }
+    }
+  `;
+
+  function handleDelete() {
+    deleteTimeout = setTimeout(() => {
+      deleteTimeout = null;
+    }, 1620)
+  }
+
+  function handleDeleteConfirm() {
+    mutate(client, {mutation: delete_reg, variables: { id: reg.id }});
+    clearTimeout(deleteTimeout); deleteTimeout = null;
+  }
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
@@ -140,5 +171,7 @@
   </div>
   <p>
     <button>Save</button>
+    <button type="button" on:click={handleDelete} disabled={deleteTimeout !== null}>Delete</button>
+    {#if (deleteTimeout !== null)}<button type="button" on:click={handleDeleteConfirm}>Confirm delete</button>{/if}
   </p>
 </form>
