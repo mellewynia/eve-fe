@@ -1,7 +1,33 @@
 <script>
 export let reg;
 
+import { onDestroy } from 'svelte';
 import { format, distanceInWordsStrict, distanceInWordsToNow, getTime } from 'date-fns';
+
+let sum = calcSum();
+let interval = null;
+
+$: {
+  if (reg.endDate === null && reg.rate !== null && reg.rate > 0) {
+    if (interval === null) {
+      interval = setInterval(() => {
+        sum = calcSum();
+      }, 500);
+    }
+  }
+}
+
+onDestroy(() => {
+  if (interval) { clearInterval(interval); }
+});
+
+function calcSum () {
+  if (reg.rate !== null && reg.rate > 0) {
+    return (((getTime(reg.endDate || new Date()) - getTime(reg.startDate)) / 3600000) * reg.rate );
+  }
+
+  return 0;
+}
 
 </script>
 
@@ -58,9 +84,9 @@ import { format, distanceInWordsStrict, distanceInWordsToNow, getTime } from 'da
         </style>
       {/if}
     </span>
-    {#if reg.rate !== null && reg.rate > 0}
+    {#if sum > 0}
       <span class:recording={!reg.endDate}>
-        €{( /*cool*/ (((getTime(reg.endDate || new Date()) - getTime(reg.startDate)) / 3600000) * reg.rate ) / 100).toFixed(2)}
+        €{(sum / 100).toFixed(2)}
       </span>
     {/if}
     <span class="time-item-meta__project-name">
