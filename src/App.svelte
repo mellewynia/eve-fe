@@ -55,6 +55,7 @@
   import ProjectForm from './ProjectForm.svelte';
   import RegForm from './RegForm.svelte';
   import RegItem from './RegItem.svelte';
+  import Report from './Report.svelte';
 
   const name = 'Eve + svelte';
 
@@ -67,7 +68,7 @@
   }
 </script>
 
-<h1>Hello {name}!</h1>
+<Report />
 
 <button on:click="{() => {showProjectForm = !showProjectForm}}">showProjectForm</button>
 {#if showProjectForm}<hr/><ProjectForm/><hr/>{/if}

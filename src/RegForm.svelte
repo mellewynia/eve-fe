@@ -171,7 +171,9 @@
   </div>
   <p>
     <button>Save</button>
-    <button type="button" on:click={handleDelete} disabled={deleteTimeout !== null}>Delete</button>
-    {#if (deleteTimeout !== null)}<button type="button" on:click={handleDeleteConfirm}>Confirm delete</button>{/if}
+    {#if (id !== null)}
+      <button type="button" on:click={handleDelete} disabled={deleteTimeout !== null}>Delete</button>
+      {#if (deleteTimeout !== null)}<button type="button" on:click={handleDeleteConfirm}>Confirm delete</button>{/if}
+    {/if}
   </p>
 </form>
