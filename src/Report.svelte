@@ -103,19 +103,25 @@ function create() {
 }
 
 load();
+
+import prettyMs from 'pretty-ms';
 </script>
 
 {#if (report)}
   <ul>
     {#each report.projs as _proj}
       <li>
-        {_proj.name} {_proj.totalTime} €{Math.round(_proj.totalSum / 100).toFixed(2)}
+        {_proj.name} {prettyMs(_proj.totalTime)} €{Math.round(_proj.totalSum / 100).toFixed(2)}
       </li>
     {/each}
     <li>
       {report.noProj.name} 
-      {report.noProj.totalTime}
+      {prettyMs(report.noProj.totalTime)}
       €{Math.round(report.noProj.totalSum / 100).toFixed(2)}
     </li>
   </ul>
+  <br />
+  <div>
+    {prettyMs(report.totalTime)} €{Math.round(report.noProj.totalSum / 100).toFixed(2)}
+  </div>
 {/if}
